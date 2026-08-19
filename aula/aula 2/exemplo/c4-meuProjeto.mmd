@@ -1,0 +1,97 @@
+C4Context
+    title Sistema de Biblioteca - Diagrama de Contexto C4
+
+    Person(usuario, "Usuário", "Pesquisa livros, solicita empréstimos, renova exemplares e consulta seu histórico.")
+    Person(bibliotecario, "Bibliotecário", "Gerencia o acervo, usuários, empréstimos, devoluções e relatórios.")
+
+    System(biblioteca, "Sistema da Biblioteca", "Permite pesquisar e gerenciar livros, controlar empréstimos e enviar notificações de prazo.")
+    System_Ext(email, "Serviço de E-mail", "Envia avisos de empréstimo, devolução e vencimento de prazo.")
+    System_Ext(identidade, "Provedor de Identidade", "Realiza autenticação externa dos usuários e bibliotecários.")
+
+    Rel(usuario, biblioteca, "Pesquisa livros e gerencia empréstimos", "HTTPS")
+    Rel(bibliotecario, biblioteca, "Gerencia acervo e operações", "HTTPS")
+    Rel(biblioteca, email, "Envia notificações", "SMTP/API")
+    Rel(biblioteca, identidade, "Valida autenticação", "OAuth 2.0/OIDC")
+
+%% -----------------------------------------------------------------
+%% Container View
+%% -----------------------------------------------------------------
+
+C4Container
+    title Sistema da Biblioteca - Diagrama de Contêineres C4
+
+    Person(usuario, "Usuário", "Pessoa que consulta o catálogo e realiza empréstimos.")
+    Person(bibliotecario, "Bibliotecário", "Responsável pela administração da biblioteca.")
+
+    System_Ext(email, "Serviço de E-mail", "Serviço externo para envio de mensagens.")
+    System_Ext(identidade, "Provedor de Identidade", "Serviço externo de autenticação.")
+
+    System_Boundary(sistema, "Sistema da Biblioteca") {
+        Container(appUsuario, "Aplicação do Usuário", "Web/Mobile", "Permite pesquisar livros, solicitar empréstimos e consultar o histórico.")
+        Container(appBiblioteca, "Aplicação da Biblioteca", "Web", "Permite administrar livros, usuários, empréstimos e devoluções.")
+        Container(api, "API da Biblioteca", "Java/Spring Boot", "Expõe as regras de negócio e os endpoints do sistema.")
+        Container(auth, "Serviço de Autenticação", "Componente da API", "Controla login, perfis e permissões de acesso.")
+        Container(catalogo, "Serviço de Catálogo", "Componente da API", "Gerencia livros, autores, categorias e disponibilidade.")
+        Container(emprestimos, "Serviço de Empréstimos", "Componente da API", "Controla reservas, empréstimos, renovações e devoluções.")
+        Container(notificacoes, "Serviço de Notificações", "Worker/Serviço", "Processa e envia alertas sobre prazos e devoluções.")
+        Container(relatorios, "Serviço de Relatórios", "Componente da API", "Gera relatórios administrativos e indicadores.")
+        ContainerDb(banco, "Banco de Dados", "PostgreSQL", "Armazena usuários, livros, empréstimos, reservas e auditoria.")
+        ContainerDb(cache, "Cache", "Redis", "Armazena consultas frequentes e sessões temporárias.")
+        Container(job, "Agendador de Prazos", "Job agendado", "Identifica empréstimos próximos do vencimento ou atrasados.")
+    }
+
+    Rel(usuario, appUsuario, "Usa", "HTTPS")
+    Rel(bibliotecario, appBiblioteca, "Usa", "HTTPS")
+    Rel(appUsuario, api, "Consome", "REST/JSON")
+    Rel(appBiblioteca, api, "Consome", "REST/JSON")
+    Rel(api, auth, "Valida acesso")
+    Rel(api, catalogo, "Consulta e atualiza catálogo")
+    Rel(api, emprestimos, "Gerencia empréstimos")
+    Rel(api, relatorios, "Solicita relatórios")
+    Rel(auth, identidade, "Autentica usuários", "OAuth 2.0/OIDC")
+    Rel(auth, banco, "Consulta perfis e permissões", "SQL")
+    Rel(catalogo, banco, "Lê e grava livros", "SQL")
+    Rel(catalogo, cache, "Consulta dados frequentes")
+    Rel(emprestimos, banco, "Lê e grava empréstimos", "SQL")
+    Rel(relatorios, banco, "Consulta dados", "SQL")
+    Rel(job, emprestimos, "Verifica prazos")
+    Rel(job, notificacoes, "Solicita notificações")
+    Rel(notificacoes, email, "Envia mensagens", "SMTP/API")
+
+%% -----------------------------------------------------------------
+%% Component View - API
+%% -----------------------------------------------------------------
+
+C4Component
+    title API da Biblioteca - Diagrama de Componentes C4
+
+    Container(appUsuario, "Aplicação do Usuário", "Web/Mobile", "Interface do usuário.")
+    Container(appBiblioteca, "Aplicação da Biblioteca", "Web", "Interface administrativa.")
+    ContainerDb(banco, "Banco de Dados", "PostgreSQL", "Dados persistidos do sistema.")
+    Container_Ext(email, "Serviço de E-mail", "SMTP/API", "Envio de mensagens.")
+
+    Container_Boundary(api, "API da Biblioteca") {
+        Component(rotas, "Controladores REST", "Spring MVC", "Recebem requisições HTTP e retornam respostas JSON.")
+        Component(authController, "Controlador de Autenticação", "Componente", "Processa login, tokens e permissões.")
+        Component(catalogoController, "Controlador de Catálogo", "Componente", "Disponibiliza pesquisa e manutenção de livros.")
+        Component(emprestimoController, "Controlador de Empréstimos", "Componente", "Gerencia reservas, empréstimos, renovações e devoluções.")
+        Component(relatorioController, "Controlador de Relatórios", "Componente", "Disponibiliza relatórios para o bibliotecário.")
+        Component(regras, "Serviço de Regras de Negócio", "Componente", "Valida disponibilidade, limites e prazos.")
+        Component(repositorios, "Repositórios", "Spring Data JPA", "Persistem e consultam informações no banco.")
+        Component(eventos, "Publicador de Eventos", "Mensageria interna", "Publica eventos para notificações e auditoria.")
+    }
+
+    Rel(appUsuario, rotas, "Faz requisições", "HTTPS/JSON")
+    Rel(appBiblioteca, rotas, "Faz requisições", "HTTPS/JSON")
+    Rel(rotas, authController, "Encaminha autenticação")
+    Rel(rotas, catalogoController, "Encaminha consultas de catálogo")
+    Rel(rotas, emprestimoController, "Encaminha operações de empréstimo")
+    Rel(rotas, relatorioController, "Encaminha relatórios")
+    Rel(authController, regras, "Valida credenciais e permissões")
+    Rel(catalogoController, regras, "Executa regras do catálogo")
+    Rel(emprestimoController, regras, "Executa regras de empréstimo")
+    Rel(relatorioController, repositorios, "Consulta dados")
+    Rel(regras, repositorios, "Lê e grava entidades")
+    Rel(regras, eventos, "Publica eventos")
+    Rel(repositorios, banco, "Consulta e persiste", "SQL")
+    Rel(eventos, email, "Aciona notificações", "SMTP/API")
