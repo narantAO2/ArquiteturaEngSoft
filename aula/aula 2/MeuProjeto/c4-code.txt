@@ -1,0 +1,43 @@
+classDiagram
+    class Loan {
+        -int id
+        -Book book
+        -User user
+        -Date loanDate
+        -Date dueDate
+        -Date returnDate
+        -String status
+
+        +Loan(book, user, loanDate, dueDate)
+        +renew(book, user, newDueDate) bool
+        +returnBook(book, user, returnDate) bool
+        +isOverdue() bool
+        +calculateFine() decimal
+        +changeStatus(status) void
+    }
+
+    class Book {
+        -int id
+        -String title
+        -String author
+        -String isbn
+        -bool available
+
+        +isAvailable() bool
+        +markAsBorrowed() void
+        +markAsAvailable() void
+    }
+
+    class User {
+        -int id
+        -String name
+        -String email
+        -String role
+
+        +canBorrow() bool
+        +getActiveLoans() List~Loan~
+    }
+
+    Loan "1" --> "1" Book : refere-se a
+    Loan "1" --> "1" User : pertence a
+    User "1" --> "0..*" Loan : realiza

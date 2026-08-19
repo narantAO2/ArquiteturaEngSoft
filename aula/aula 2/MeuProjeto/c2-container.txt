@@ -1,0 +1,26 @@
+flowchart TD
+    User(["Usuário"])
+    Librarian(["Bibliotecário"])
+
+    subgraph SB["Sistema da Biblioteca"]
+        App["App do Usuário"]
+        Backoffice["App da Biblioteca"]
+        Server[("API")]
+        Catalog["Serviço de Catálogo"]
+        Loans["Serviço de Empréstimos"]
+        DB[("Banco de dados")]
+    end
+
+    Email["Serviço de e-mail"]
+
+    User -->|Pesquisa e solicita empréstimo| App
+    Librarian -->|Gerencia livros e empréstimos| Backoffice
+
+    App -->|Chama API| Server
+    Backoffice -->|Chama API| Server
+
+    Server -->|Consulta livros| Catalog
+    Server -->|Processa empréstimos| Loans
+    Catalog -->|Lê e atualiza| DB
+    Loans -->|Lê e grava| DB
+    Loans -->|Monitora prazos vencendo| Email

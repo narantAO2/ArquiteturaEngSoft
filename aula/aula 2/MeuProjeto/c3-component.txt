@@ -1,0 +1,18 @@
+flowchart TD
+    subgraph SA["API da Biblioteca"]
+        Catalog["Catálogo<br>Lista e pesquisa livros"]
+        Loan["Empréstimos<br>Empresta e devolve livros"]
+        Notification["Notificações<br>Monitora e avisa sobre prazos"]
+        UserService["Usuários<br>Gerencia usuários e permissões"]
+    end
+
+    Email["Serviço de e-mail externo"]
+    Database[("Banco de dados")]
+
+    Loan -->|Consulta disponibilidade| Catalog
+    Loan -->|Consulta usuários| UserService
+    Loan -->|Grava empréstimos| Database
+    Catalog -->|Lê informações dos livros| Database
+    UserService -->|Lê e atualiza usuários| Database
+    Loan -->|Aciona| Notification
+    Notification -->|Envia aviso| Email
