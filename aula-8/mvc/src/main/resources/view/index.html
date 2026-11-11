@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: estilos}"></th:block>
+    <title>PROJETO MVC</title>
+</head>
+<body>
+<header th:replace="~{fragments/layout :: cabecalho('/home')}"></header>
+<main>
+    <div class="card">
+        <h1>VAI CORINTHIANS!</h1>
+        <p>Sistema de Vendas – produtos, estoque e pedidos (faturados pelo hub da aula 7).</p>
+        <p>Perfil atual: <strong th:text="${perfilAtual.descricao}"></strong>
+            (troque no canto superior direito; só o <strong>Administrador</strong> pode descontinuar produtos).</p>
+        <p>
+            <a class="botao" th:href="@{/produtos}">Produtos</a>
+            <a class="botao" th:href="@{/estoque}">Entrada e saída de estoque</a>
+            <a class="botao" th:href="@{/pedidos}">Pedidos</a>
+        </p>
+    </div>
+</main>
+</body>
+</html>

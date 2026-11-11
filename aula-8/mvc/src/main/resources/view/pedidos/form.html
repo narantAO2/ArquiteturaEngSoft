@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: estilos}"></th:block>
+    <title>Novo pedido</title>
+</head>
+<body>
+<header th:replace="~{fragments/layout :: cabecalho('/pedidos')}"></header>
+<main>
+    <th:block th:replace="~{fragments/layout :: mensagens}"></th:block>
+    <div class="card">
+        <h2>Novo pedido</h2>
+        <form th:action="@{/pedidos}" th:object="${pedido}" method="post">
+            <label for="clienteNome">Nome do cliente</label>
+            <input id="clienteNome" type="text" th:field="*{clienteNome}" required>
+
+            <label for="clienteEmail">E-mail do cliente</label>
+            <input id="clienteEmail" type="email" th:field="*{clienteEmail}" required>
+
+            <label for="clienteDocumento">CPF/CNPJ</label>
+            <input id="clienteDocumento" type="text" th:field="*{clienteDocumento}">
+
+            <p style="margin-top:16px">
+                <button type="submit">Criar pedido</button>
+                <a class="botao botao-sec" th:href="@{/pedidos}">Voltar</a>
+            </p>
+        </form>
+    </div>
+</main>
+</body>
+</html>

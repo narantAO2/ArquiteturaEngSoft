@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:fragment="estilos">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            * { box-sizing: border-box; }
+            body { font-family: Arial, Helvetica, sans-serif; margin: 0; background: #f4f5f7; color: #222; }
+            header { background: #1f2937; color: #fff; padding: 12px 24px; display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+            header a { color: #fff; text-decoration: none; font-weight: bold; }
+            header a:hover { text-decoration: underline; }
+            header form { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+            main { max-width: 1000px; margin: 24px auto; padding: 0 16px; }
+            .card { background: #fff; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { padding: 8px; border-bottom: 1px solid #e5e7eb; text-align: left; }
+            label { display: block; margin-top: 12px; font-weight: bold; }
+            input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; border: 1px solid #ccc; border-radius: 4px; }
+            button, .botao { display: inline-block; padding: 8px 14px; border: 0; border-radius: 4px; background: #2563eb; color: #fff; cursor: pointer; text-decoration: none; font-size: 14px; }
+            .botao-perigo { background: #dc2626; }
+            .botao-sec { background: #6b7280; }
+            .msg { padding: 10px 14px; border-radius: 4px; margin-bottom: 16px; }
+            .msg-sucesso { background: #dcfce7; color: #166534; }
+            .msg-erro { background: #fee2e2; color: #991b1b; }
+            .status { padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+            .status-DISPONIVEL { background: #dcfce7; color: #166534; }
+            .status-INDISPONIVEL { background: #fef9c3; color: #854d0e; }
+            .status-DESCONTINUADO { background: #e5e7eb; color: #374151; }
+            .acoes { display: flex; gap: 6px; }
+        </style>
+    </th:block>
+</head>
+<body>
+
+<header th:fragment="cabecalho(voltarPara)">
+    <a th:href="@{/home}">Sistema de Vendas</a>
+    <a th:href="@{/produtos}">Produtos</a>
+    <a th:href="@{/estoque}">Estoque</a>
+    <a th:href="@{/pedidos}">Pedidos</a>
+    <form th:action="@{/perfil}" method="post">
+        <span>Perfil:</span>
+        <input type="hidden" name="voltarPara" th:value="${voltarPara}">
+        <select name="perfil" onchange="this.form.submit()" style="width:auto;margin:0">
+            <option th:each="p : ${perfis}" th:value="${p}" th:text="${p.descricao}"
+                    th:selected="${p == perfilAtual}"></option>
+        </select>
+    </form>
+</header>
+
+<th:block th:fragment="mensagens">
+    <div class="msg msg-sucesso" th:if="${sucesso}" th:text="${sucesso}"></div>
+    <div class="msg msg-erro" th:if="${erro}" th:text="${erro}"></div>
+</th:block>
+
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: estilos}"></th:block>
+    <title>Pedido</title>
+</head>
+<body>
+<header th:replace="~{fragments/layout :: cabecalho('/pedidos')}"></header>
+<main>
+    <th:block th:replace="~{fragments/layout :: mensagens}"></th:block>
+
+    <div class="card">
+        <h2 th:text="${'Pedido #' + pedido.id + ' – ' + pedido.status.descricao}"></h2>
+        <p>Cliente: <strong th:text="${pedido.clienteNome}"></strong>
+            (<span th:text="${pedido.clienteEmail}"></span>)</p>
+        <p th:if="${pedido.faturaId != null}">Fatura no hub: <strong th:text="${pedido.faturaId}"></strong></p>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Produto</th>
+                <th>Qtd.</th>
+                <th>Valor unit.</th>
+                <th>Subtotal</th>
+                <th th:if="${pedido.aberto}"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(pedido.itens)}">
+                <td colspan="5">Nenhum item.</td>
+            </tr>
+            <tr th:each="i : ${pedido.itens}">
+                <td th:text="${i.produto.nome}"></td>
+                <td th:text="${i.quantidade}"></td>
+                <td th:text="${'R$ ' + #numbers.formatDecimal(i.valorUnitario, 1, 'POINT', 2, 'COMMA')}"></td>
+                <td th:text="${'R$ ' + #numbers.formatDecimal(i.subtotal, 1, 'POINT', 2, 'COMMA')}"></td>
+                <td th:if="${pedido.aberto}">
+                    <form th:action="@{/pedidos/{id}/itens/{itemId}/remover(id=${pedido.id},itemId=${i.id})}" method="post">
+                        <button class="botao-perigo" type="submit">Remover</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <p><strong th:text="${'Total: R$ ' + #numbers.formatDecimal(pedido.valorTotal, 1, 'POINT', 2, 'COMMA')}"></strong></p>
+
+        <form th:if="${pedido.aberto}" th:action="@{/pedidos/{id}/fechar(id=${pedido.id})}" method="post">
+            <button type="submit">Fechar pedido e faturar</button>
+        </form>
+    </div>
+
+    <div class="card" th:if="${pedido.aberto}">
+        <h3>Adicionar item</h3>
+        <p>Só aparecem produtos com status DISPONÍVEL.</p>
+        <form th:action="@{/pedidos/{id}/itens(id=${pedido.id})}" method="post">
+            <label for="produtoId">Produto</label>
+            <select id="produtoId" name="produtoId" required>
+                <option value="">Selecione...</option>
+                <option th:each="p : ${produtos}" th:value="${p.id}"
+                        th:text="${p.nome + ' – R$ ' + #numbers.formatDecimal(p.preco, 1, 'POINT', 2, 'COMMA') + ' – saldo: ' + p.quantidade}"></option>
+            </select>
+
+            <label for="quantidade">Quantidade</label>
+            <input id="quantidade" name="quantidade" type="number" min="1" value="1" required>
+
+            <p style="margin-top:16px"><button type="submit">Adicionar</button></p>
+        </form>
+    </div>
+
+    <p><a class="botao botao-sec" th:href="@{/pedidos}">Voltar</a></p>
+</main>
+</body>
+</html>

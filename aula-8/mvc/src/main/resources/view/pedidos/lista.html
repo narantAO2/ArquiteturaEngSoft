@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: estilos}"></th:block>
+    <title>Pedidos</title>
+</head>
+<body>
+<header th:replace="~{fragments/layout :: cabecalho('/pedidos')}"></header>
+<main>
+    <th:block th:replace="~{fragments/layout :: mensagens}"></th:block>
+    <div class="card">
+        <h2>Pedidos</h2>
+        <p><a class="botao" th:href="@{/pedidos/novo}">Novo pedido</a></p>
+        <table>
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Cliente</th>
+                <th>Itens</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Fatura (hub)</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(pedidos)}">
+                <td colspan="7">Nenhum pedido registrado.</td>
+            </tr>
+            <tr th:each="p : ${pedidos}">
+                <td th:text="${p.id}"></td>
+                <td th:text="${p.clienteNome}"></td>
+                <td th:text="${#lists.size(p.itens)}"></td>
+                <td th:text="${'R$ ' + #numbers.formatDecimal(p.valorTotal, 1, 'POINT', 2, 'COMMA')}"></td>
+                <td th:text="${p.status.descricao}"></td>
+                <td th:text="${p.faturaId != null} ? ${p.faturaId} : '-'"></td>
+                <td><a class="botao botao-sec" th:href="@{/pedidos/{id}(id=${p.id})}">Abrir</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>
