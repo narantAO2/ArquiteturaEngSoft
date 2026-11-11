@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: estilos}"></th:block>
+    <title>Produtos</title>
+</head>
+<body>
+<header th:replace="~{fragments/layout :: cabecalho('/produtos')}"></header>
+<main>
+    <th:block th:replace="~{fragments/layout :: mensagens}"></th:block>
+    <div class="card">
+        <h2>Produtos</h2>
+        <p><a class="botao" th:href="@{/produtos/novo}">Novo produto</a></p>
+        <table>
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Nome</th>
+                <th>Preço</th>
+                <th>Estoque</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(produtos)}">
+                <td colspan="6">Nenhum produto cadastrado.</td>
+            </tr>
+            <tr th:each="p : ${produtos}">
+                <td th:text="${p.id}"></td>
+                <td th:text="${p.nome}"></td>
+                <td th:text="${'R$ ' + #numbers.formatDecimal(p.preco, 1, 'POINT', 2, 'COMMA')}"></td>
+                <td th:text="${p.quantidade}"></td>
+                <td><span th:class="${'status status-' + p.status}" th:text="${p.status.descricao}"></span></td>
+                <td class="acoes">
+                    <a class="botao botao-sec" th:href="@{/produtos/{id}/editar(id=${p.id})}">Editar</a>
+                    <form th:if="${perfilAtual.name() == 'ADMINISTRADOR' and !p.descontinuado}"
+                          th:action="@{/produtos/{id}/descontinuar(id=${p.id})}" method="post"
+                          onsubmit="return confirm('Descontinuar este produto? Ele não poderá mais ser movimentado no estoque.')">
+                        <button class="botao-perigo" type="submit">Descontinuar</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

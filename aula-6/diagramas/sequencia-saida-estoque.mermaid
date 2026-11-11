@@ -1,0 +1,34 @@
+sequenceDiagram
+    title Rotina de SAÍDA de estoque
+    autonumber
+    actor U as Usuário (Estoque/Adm)
+    participant V as View estoque.html
+    participant C as EstoqueController
+    participant S as EstoqueService
+    participant PR as ProdutoRepository
+    participant P as Produto
+    participant MR as MovimentacaoEstoqueRepository
+
+    U->>V: Seleciona produto, tipo SAÍDA e quantidade
+    V->>C: POST /estoque (produtoId, SAIDA, quantidade)
+    C->>S: movimentar(produtoId, SAIDA, qtd, perfil)
+    S->>PR: findById(produtoId)
+    PR-->>S: Produto
+    S->>P: registrarSaida(qtd)
+    alt Produto DESCONTINUADO, sem estoque ou qtd > saldo
+        P-->>S: RegraNegocioException
+        S-->>C: RegraNegocioException
+        C-->>V: redirect /estoque + mensagem de erro
+    else Saída válida
+        P->>P: quantidade = quantidade - qtd
+        opt Saldo ficou 0
+            P->>P: status = INDISPONIVEL
+        end
+        P-->>S: ok
+        S->>PR: save(produto)
+        S->>MR: save(MovimentacaoEstoque SAIDA)
+        MR-->>S: movimentação salva
+        S-->>C: MovimentacaoEstoque
+        C-->>V: redirect /estoque + mensagem de sucesso
+    end
+    V-->>U: Exibe saldo e status atualizados

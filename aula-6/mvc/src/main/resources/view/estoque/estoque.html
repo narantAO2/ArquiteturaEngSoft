@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: estilos}"></th:block>
+    <title>Estoque</title>
+</head>
+<body>
+<header th:replace="~{fragments/layout :: cabecalho('/estoque')}"></header>
+<main>
+    <th:block th:replace="~{fragments/layout :: mensagens}"></th:block>
+
+    <div class="card">
+        <h2>Entrada e saída de estoque</h2>
+        <p>Produtos descontinuados não aparecem aqui e não podem ser movimentados.</p>
+        <form th:action="@{/estoque}" method="post">
+            <label for="produtoId">Produto</label>
+            <select id="produtoId" name="produtoId" required>
+                <option value="">Selecione...</option>
+                <option th:each="p : ${produtos}" th:value="${p.id}"
+                        th:text="${p.nome + ' – saldo: ' + p.quantidade + ' (' + p.status.descricao + ')'}"></option>
+            </select>
+
+            <label>Tipo</label>
+            <select name="tipo" required>
+                <option th:each="t : ${tipos}" th:value="${t}" th:text="${t.descricao}"></option>
+            </select>
+
+            <label for="quantidade">Quantidade</label>
+            <input id="quantidade" name="quantidade" type="number" min="1" required>
+
+            <label for="observacao">Observação</label>
+            <input id="observacao" name="observacao" type="text" maxlength="200">
+
+            <p style="margin-top:16px"><button type="submit">Registrar</button></p>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Últimas movimentações</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Data/hora</th>
+                <th>Produto</th>
+                <th>Tipo</th>
+                <th>Qtd.</th>
+                <th>Saldo após</th>
+                <th>Perfil</th>
+                <th>Observação</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(movimentacoes)}">
+                <td colspan="7">Nenhuma movimentação registrada.</td>
+            </tr>
+            <tr th:each="m : ${movimentacoes}">
+                <td th:text="${#temporals.format(m.dataHora, 'dd/MM/yyyy HH:mm')}"></td>
+                <td th:text="${m.produto.nome}"></td>
+                <td th:text="${m.tipo.descricao}"></td>
+                <td th:text="${m.quantidade}"></td>
+                <td th:text="${m.saldoApos}"></td>
+                <td th:text="${m.perfil != null} ? ${m.perfil.descricao} : '-'"></td>
+                <td th:text="${m.observacao}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

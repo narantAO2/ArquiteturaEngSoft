@@ -1,0 +1,24 @@
+flowchart TD
+    inicio((Início)) --> A[Usuário seleciona o produto e informa a quantidade de saída]
+    A --> B[Sistema busca o produto]
+    B --> C{Produto está DESCONTINUADO?}
+    C -- Sim --> E1[Bloquear saída:<br/>produto descontinuado não pode ser movimentado]
+    C -- Não --> D{Quantidade > 0?}
+    D -- Não --> E2[Bloquear saída:<br/>quantidade inválida]
+    D -- Sim --> F{Saldo em estoque > 0?}
+    F -- Não --> E3[Bloquear saída:<br/>produto sem estoque disponível]
+    F -- Sim --> G{Quantidade <= saldo?}
+    G -- Não --> E4[Bloquear saída:<br/>estoque insuficiente]
+    G -- Sim --> H[Subtrair quantidade do saldo]
+    H --> I{Saldo ficou igual a 0?}
+    I -- Sim --> J[Alterar status para INDISPONÍVEL]
+    I -- Não --> K[Manter status DISPONÍVEL]
+    J --> L[Registrar movimentação de SAÍDA no histórico]
+    K --> L
+    L --> M[Exibir mensagem de sucesso com o novo saldo]
+    E1 --> N[Exibir mensagem de erro]
+    E2 --> N
+    E3 --> N
+    E4 --> N
+    M --> fim((Fim))
+    N --> fim

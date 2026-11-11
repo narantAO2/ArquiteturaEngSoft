@@ -1,0 +1,34 @@
+sequenceDiagram
+    title Rotina de ENTRADA de estoque
+    autonumber
+    actor U as Usuário (Estoque/Adm)
+    participant V as View estoque.html
+    participant C as EstoqueController
+    participant S as EstoqueService
+    participant PR as ProdutoRepository
+    participant P as Produto
+    participant MR as MovimentacaoEstoqueRepository
+
+    U->>V: Seleciona produto, tipo ENTRADA e quantidade
+    V->>C: POST /estoque (produtoId, ENTRADA, quantidade)
+    C->>S: movimentar(produtoId, ENTRADA, qtd, perfil)
+    S->>PR: findById(produtoId)
+    PR-->>S: Produto
+    S->>P: registrarEntrada(qtd)
+    alt Produto DESCONTINUADO ou qtd <= 0
+        P-->>S: RegraNegocioException
+        S-->>C: RegraNegocioException
+        C-->>V: redirect /estoque + mensagem de erro
+    else Entrada válida
+        P->>P: quantidade = quantidade + qtd
+        opt Saldo anterior era 0
+            P->>P: status = DISPONIVEL
+        end
+        P-->>S: ok
+        S->>PR: save(produto)
+        S->>MR: save(MovimentacaoEstoque ENTRADA)
+        MR-->>S: movimentação salva
+        S-->>C: MovimentacaoEstoque
+        C-->>V: redirect /estoque + mensagem de sucesso
+    end
+    V-->>U: Exibe saldo e status atualizados
